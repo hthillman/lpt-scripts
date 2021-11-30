@@ -9,6 +9,7 @@ min_profitable_eth_pending_fees = 0.05
 livepeer_subgraph_url = 'https://api.thegraph.com/subgraphs/name/livepeer/livepeer'
 rpc_url = "https://mainnet.infura.io/v3/69dd01c0890246e09bdbcf9fb85a81c1"
 bonding_manager_contract_address = '0x511Bc4556D823Ae99630aE8de28b9B80Df90eA2e'
+page_size = 100
 
 def run_query(q):
     request = requests.post(livepeer_subgraph_url,
@@ -19,11 +20,11 @@ def run_query(q):
         raise Exception('Query failed - existing. Status {}. Query supplied: {}'.format(request.status_code, q))
 
 
-def get_query():
-    return "{ delegators(limit: 4000) { id } }"
+def get_query(limit, skip):
+    return "{ delegators(first: %s, skip: %s) { id } }" % (limit, skip)
 
-def get_delegators():
-    result = run_query(get_query())
+def get_delegators(offset):
+    result = run_query(get_query(page_size, offset))
     return result["data"]["delegators"]
 
 def get_web3_client():
@@ -59,11 +60,27 @@ def get_aggregate_dust(delegators):
 
 
 
-delegators = get_delegators()
 w3 = get_web3_client()
 contract = get_contract(w3)
-aggregate_eth, aggregate_lpt, eth_impacted, lpt_impacted = get_aggregate_dust(delegators)
+aggregate_eth = 0
+aggregate_lpt = 0
+eth_impacted = 0
+lpt_impacted = 0
 
+_continue = True 
+offset = 0
+while _continue:
+    delegators = get_delegators(offset)
+    _aggregate_eth, _aggregate_lpt, _eth_impacted, _lpt_impacted =get_aggregate_dust(delegators)
+    aggregate_eth += _aggregate_eth
+    aggregate_lpt += _aggregate_lpt
+    eth_impacted += _eth_impacted
+    lpt_impacted += _lpt_impacted
+    if(len(delegators)) < page_size:
+        _continue = False
+    else: 
+        print("paginating ({offset})....".format(offset=offset))
+    offset += page_size   
 
 print(
     """
