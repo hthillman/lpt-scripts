@@ -39,8 +39,7 @@ def get_pending_fees(contract, delegator_address, current_round):
 def get_pending_stake(contract, delegator_address, current_round):
     return contract.caller.pendingStake(Web3.toChecksumAddress(delegator_address), current_round)
 
-def convert_to_eth_value(raw):
-    return round(raw / wei_conversion_factor, 2)
+
 
 def get_aggregate_dust(delegators):
     aggregate_eth_fees = 0
@@ -48,12 +47,12 @@ def get_aggregate_dust(delegators):
     lpt_impacted = 0
     eth_impacted = 0
     for d in delegators:
-        pending_eth_fees = convert_to_eth_value(get_pending_fees(contract, d["id"], livepeer_round))
+        pending_eth_fees = Web3.fromWei(get_pending_fees(contract, d["id"], livepeer_round), 'ether')
         if(pending_eth_fees < min_profitable_eth_pending_fees):
             aggregate_eth_fees += pending_eth_fees
             eth_impacted += 1
 
-        pending_stake = convert_to_eth_value(get_pending_stake(contract, d["id"], livepeer_round))
+        pending_stake = Web3.fromWei(get_pending_stake(contract, d["id"], livepeer_round), 'ether')
         if pending_stake < min_profitable_lpt_pending_stake:
             aggregate_pending_stake += pending_stake
             lpt_impacted += 1
