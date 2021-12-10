@@ -1,22 +1,14 @@
 import requests 
 from web3 import Web3
-from abi import bonding_manager_contract_abi
+from utils.livepeer.abi.bonding_manager import bonding_manager_contract_abi
 from utils.eth import get_web3_client, get_contract
-from utils.livepeer_subgraph import get_delegators
+from utils.livepeer.subgraph import get_delegators, get_pending_fees, get_pending_stake
 
 wei_conversion_factor = 1000000000000000000
 livepeer_round = 2381
 min_profitable_lpt_pending_stake = 4
 min_profitable_eth_pending_fees = 0.05
-bonding_manager_contract_address = '0x511Bc4556D823Ae99630aE8de28b9B80Df90eA2e'
 page_size = 100
-
-
-def get_pending_fees(contract, delegator_address, current_round):
-    return contract.caller.pendingFees(Web3.toChecksumAddress(delegator_address), current_round)
-
-def get_pending_stake(contract, delegator_address, current_round):
-    return contract.caller.pendingStake(Web3.toChecksumAddress(delegator_address), current_round)
 
 
 def get_aggregate_dust(delegators):
