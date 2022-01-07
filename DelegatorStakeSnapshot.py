@@ -15,7 +15,8 @@ def acc_cb(acc, cur):
     _acc = acc
     for c in cur:
         stake = Web3.fromWei(get_pending_stake(contract, Web3.toChecksumAddress(c["id"]), round), 'ether')
-        _acc.append([c['id'], c['delegate'], stake])
+        if c['delegate']:
+            _acc.append([c['id'], c['delegate']['id'], stake])
     return _acc
 
 # field names 

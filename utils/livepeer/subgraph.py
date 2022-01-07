@@ -35,7 +35,7 @@ def get_delegators(offset, page_size):
     return result["data"]["delegators"]
 
 def _get_delegators_query(limit, skip):
-    return "{ delegators(first: %s, skip: %s) { id delegate } }" % (limit, skip)
+    return "{ delegators(first: %s, skip: %s) { id delegate { id } } }" % (limit, skip)
 
 
 def get_current_round():

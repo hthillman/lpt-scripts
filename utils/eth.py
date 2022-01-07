@@ -7,3 +7,9 @@ def get_web3_client():
 
 def get_contract(web3_client, address, abi):
     return web3_client.eth.contract(address=address, abi=abi)
+
+def checksum_list(addresses):
+    _addresses =[]
+    for address in addresses:
+        _addresses.append(Web3.toChecksumAddress(address))
+    return _addresses
