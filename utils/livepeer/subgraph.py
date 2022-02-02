@@ -38,6 +38,13 @@ def _get_delegators_query(limit, skip):
     return "{ delegators(first: %s, skip: %s) { id delegate { id } } }" % (limit, skip)
 
 
+def get_orchestrators(offset, page_size):
+    result = run_query(_get_orchestrators_query(page_size, offset))
+    return result["data"]["transcoders"]
+
+def _get_orchestrators_query(limit, skip):
+    return "{ transcoders(first: %s, skip: %s) { id active } }" % (limit, skip)
+
 def get_current_round():
     query = "{ rounds(first: 1, orderBy: startBlock, orderDirection: desc) { id } }"
     result = run_query(query)
