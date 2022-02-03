@@ -2,13 +2,15 @@ import requests
 from web3 import Web3
 from utils.livepeer.abi.bonding_manager import bonding_manager_contract_abi
 from utils.eth import get_web3_client, get_contract
-from utils.livepeer.subgraph import get_delegators, get_pending_fees, get_pending_stake
+from utils.livepeer.subgraph import SubgraphQuery, get_pending_fees, get_pending_stake
 
 wei_conversion_factor = 1000000000000000000
 livepeer_round = 2381
 min_profitable_lpt_pending_stake = 4
 min_profitable_eth_pending_fees = 0.05
 page_size = 100
+
+subgraphHandler = SubgraphQuery()
 
 
 def get_aggregate_dust(delegators):
@@ -40,7 +42,7 @@ lpt_impacted = 0
 _continue = True 
 offset = 0
 while _continue:
-    delegators = get_delegators(offset, page_size)
+    delegators = subgraphHandler.get_delegators(offset, page_size)
     _aggregate_eth, _aggregate_lpt, _eth_impacted, _lpt_impacted =get_aggregate_dust(delegators)
     aggregate_eth += _aggregate_eth
     aggregate_lpt += _aggregate_lpt

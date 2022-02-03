@@ -1,8 +1,9 @@
 from web3 import Web3 
 from utils.eth import get_web3_client, checksum_list
-from utils.livepeer.subgraph import get_delegators, paginate_results
+from utils.livepeer.subgraph import SubgraphQuery
 
 w3 = get_web3_client()
+subgraphHandler = SubgraphQuery
 
 
 page_size = 100
@@ -41,7 +42,7 @@ def acc_cb(acc, cur):
     return _acc
 
 initial_acc = [0, 0, []]
-wallets = paginate_results(initial_acc, acc_cb, get_delegators, page_size)
+wallets = subgraphHandler.paginate_results(initial_acc, acc_cb, subgraphHandler.get_delegators, page_size)
 
 
 

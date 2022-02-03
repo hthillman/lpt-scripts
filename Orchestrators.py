@@ -1,4 +1,4 @@
-from utils.livepeer.subgraph import get_orchestrators, paginate_results
+from utils.livepeer.subgraph import SubgraphQuery
 
 page_size = 100
 
@@ -14,7 +14,8 @@ def acc_cb(acc, cur):
 # field names 
 initial_acc = [0,0]
 
-res = paginate_results(initial_acc,acc_cb, get_orchestrators, page_size)
+subgraphHandler = SubgraphQuery()
+res = subgraphHandler.paginate_results(initial_acc,acc_cb, subgraphHandler.get_orchestrators, page_size)
 
 
 print(
