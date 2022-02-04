@@ -1,13 +1,16 @@
 import requests
 from web3 import Web3
 
-subgraph_url = 'https://api.thegraph.com/subgraphs/name/livepeer/livepeer'
-testnet_subgraph_url = 'https://thegraph.com/hosted-service/subgraph/livepeer/arbitrum-rinkeby'
-
+subgraph_urls = {
+    "arbitrum": "tbd",
+    "mainnet": 'https://api.thegraph.com/subgraphs/name/livepeer/livepeer',
+    "arbitrum-rinkeby": 'https://api.thegraph.com/subgraphs/name/livepeer/arbitrum-rinkeby',
+    "rinkeby": 'https://api.thegraph.com/subgraphs/name/livepeer/livepeer-rinkeby'
+}
 
 class SubgraphQuery:
-    def __init__(self, testnet=False):
-        self.livepeer_subgraph_url = testnet_subgraph_url if testnet else subgraph_url
+    def __init__(self, network="mainnet"):
+        self.livepeer_subgraph_url = subgraph_urls[network]
 
     def paginate_results(self, acc, acc_cb, query_cb, page_size):
         offset = 0
@@ -23,7 +26,6 @@ class SubgraphQuery:
         return acc
 
     def run_query(self, q):
-        print(self, q)
         request = requests.post(self.livepeer_subgraph_url,
                                 json={'query': q})
         if request.status_code == 200:
@@ -60,9 +62,8 @@ def _get_delegators_query(limit, skip):
     return "{ delegators(first: %s, skip: %s) { id delegate { id } } }" % (limit, skip)
 
 def _get_migrators_query(limit, skip):
-    return "{ migrateDelegatorFinalizedEvents(first: %s, skip: %s) { delegate delegatedStake l1Addr } }" % (limit, skip)
-
+    return "{ migrateDelegatorFinalizedEvents(first: %s, skip: %s) { delegate delegatedStake stake l1Addr } }" % (limit, skip)
 
 def _get_orchestrators_query(limit, skip):
-    return "{ transcoders(first: %s, skip: %s) { id active } }" % (limit, skip)
+    return "{ transcoders(first: %s, skip: %s) { id active totalStake } }" % (limit, skip)
 
