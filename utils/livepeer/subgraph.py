@@ -41,6 +41,9 @@ class SubgraphQuery:
     def get_migrators(self, offset, page_size):
         result = self.run_query( _get_migrators_query(page_size, offset))
         return result["data"]["migrateDelegatorFinalizedEvents"]
+    def get_delegator_claim(self, offset, page_size):
+        result = self.run_query( _get_delegator_claim_query(page_size, offset))
+        return result["data"]["stakeClaimedEvents"]
     def get_current_round(self):
         query = "{ rounds(first: 1, orderBy: startBlock, orderDirection: desc) { id } }"
         result = self.run_query( query)
@@ -66,4 +69,7 @@ def _get_migrators_query(limit, skip):
 
 def _get_orchestrators_query(limit, skip):
     return "{ transcoders(first: %s, skip: %s) { id active totalStake } }" % (limit, skip)
+
+def _get_delegator_claim_query(limit, skip):
+    return "{ stakeClaimedEvents(first: %s, skip: %s) { id delegator delegate } }" % (limit, skip)
 
