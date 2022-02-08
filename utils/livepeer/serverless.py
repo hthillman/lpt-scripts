@@ -2,14 +2,16 @@ import requests
 
 serverless_root = 'https://leaderboard-serverless.vercel.app/api'
 
-def is_high_performing_orchestrator(address):
-    res = requests.get('{0}/aggregated_stats?orchestrator={1}'.format(serverless_root, address))
+
+def high_performing_orchestrators():
+    res = requests.get('{0}/aggregated_stats'.format(serverless_root))
     res_json = res.json()
-    if not address in res_json.keys():
-        return False
-    keys = res_json[address].keys()
-    _max = 0
+    orch_high_performing_status = {}
+    keys = res_json.keys()
     for k in keys:
-        if(res_json[address][k]["score"] > _max):
-            _max = res_json[address][k]["score"]
-    return _max >= 0.63
+        _max = 0
+        for j in res_json[k]:
+            if(res_json[k][j]["score"] > _max):
+                _max = res_json[k][j]["score"]
+        orch_high_performing_status[k] = _max >= 0.63
+    return orch_high_performing_status
