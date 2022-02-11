@@ -2,14 +2,14 @@ import requests
 from web3 import Web3
 
 subgraph_urls = {
-    "arbitrum": "tbd",
+    "arbitrum": "https://api.thegraph.com/subgraphs/name/livepeer/arbitrum-one",
     "mainnet": 'https://api.thegraph.com/subgraphs/name/livepeer/livepeer',
     "arbitrum-rinkeby": 'https://api.thegraph.com/subgraphs/name/livepeer/arbitrum-rinkeby',
     "rinkeby": 'https://api.thegraph.com/subgraphs/name/livepeer/livepeer-rinkeby'
 }
 
 class SubgraphQuery:
-    def __init__(self, network="mainnet"):
+    def __init__(self, network="arbitrum"):
         self.livepeer_subgraph_url = subgraph_urls[network]
 
     def paginate_results(self, acc, acc_cb, query_cb, page_size):

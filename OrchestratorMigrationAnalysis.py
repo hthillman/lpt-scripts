@@ -4,8 +4,8 @@ from utils.livepeer.serverless import high_performing_orchestrators
 
 page_size = 100
 
-l2SubgraphHandler = SubgraphQuery("arbitrum-rinkeby")
-l1SubgraphHandler = SubgraphQuery("rinkeby")
+l2SubgraphHandler = SubgraphQuery()
+l1SubgraphHandler = SubgraphQuery("mainnet")
 
 high_performing = high_performing_orchestrators()
 
