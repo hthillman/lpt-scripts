@@ -12,11 +12,11 @@ class SubgraphQuery:
     def __init__(self, network="arbitrum"):
         self.livepeer_subgraph_url = subgraph_urls[network]
 
-    def paginate_results(self, acc, acc_cb, query_cb, page_size):
+    def paginate_results(self, acc, acc_cb, query_cb, page_size, *args):
         offset = 0
         _continue = True
         while _continue:
-            cur = query_cb(offset, page_size)
+            cur = query_cb(offset, page_size, *args)
             acc = acc_cb(acc, cur)
             if(len(cur)) < page_size:
                 _continue = False
@@ -38,6 +38,9 @@ class SubgraphQuery:
     def get_delegators(self,offset, page_size):
         result = self.run_query(_get_delegators_query(page_size, offset))
         return result["data"]["delegators"]
+    def get_fee_reward(self, offset, page_size, params):
+        result = self.run_query(_get_fee_reward_query(page_size, offset, params))
+        return result["data"]["transcoders"]
     def get_migrators(self, offset, page_size):
         result = self.run_query( _get_migrators_query(page_size, offset))
         return result["data"]["migrateDelegatorFinalizedEvents"]
@@ -66,6 +69,9 @@ def _get_delegators_query(limit, skip):
 
 def _get_migrators_query(limit, skip):
     return "{ migrateDelegatorFinalizedEvents(first: %s, skip: %s) { delegate delegatedStake stake l1Addr } }" % (limit, skip)
+
+def _get_fee_reward_query(limit, skip, params):
+    return "{ transcoders(first: %s, skip: %s, block:{number: %s}) { id active feeShare rewardCut } }" % (limit, skip, params["block"])
 
 def _get_orchestrators_query(limit, skip):
     return "{ transcoders(first: %s, skip: %s) { id active totalStake } }" % (limit, skip)

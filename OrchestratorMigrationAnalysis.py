@@ -1,3 +1,4 @@
+from audioop import reverse
 from logging import exception
 from utils.livepeer.subgraph import SubgraphQuery
 from utils.livepeer.serverless import high_performing_orchestrators
@@ -12,8 +13,8 @@ high_performing = high_performing_orchestrators()
 def nonmigrated_orch_acc_cb(acc, cur):
     _acc = acc
     for c in cur:
-     if(c["active"] and c["id"] not in migrated["orchestrators"]["addresses"]):
-        _acc["addresses"].append(c["id"])
+     if(c["active"] and c["id"] not in migrated_addresses):
+        _acc["addresses"].append({"address": c["id"], "stake":float(c["totalStake"])})
         _acc["total_stake"] += float(c["totalStake"])
         if(c["id"] in high_performing.keys() and high_performing[c["id"]]):
             _acc["high_performing"].append(c["id"])
@@ -24,9 +25,9 @@ def migrator_acc_cb(acc, cur):
     _acc = acc
     for c in cur:
         if(c["l1Addr"] == c["delegate"]):
-            _acc["orchestrators"]["addresses"].append(c["l1Addr"])
-            _acc["orchestrators"]["total_stake"] += float(c["delegatedStake"])
-            _acc["orchestrators"]["total_stake"] += float(c["stake"])
+            total_stake = float(c["delegatedStake"]) + float(c["stake"])
+            _acc["orchestrators"]["addresses"].append({"address": c["l1Addr"], "stake":total_stake})
+            _acc["orchestrators"]["total_stake"] += total_stake
             if(c["l1Addr"] in high_performing.keys() and high_performing[c["l1Addr"]]):
                 _acc["orchestrators"]["high_performing"].append(c["l1Addr"])
         elif(c["l1Addr"] != c["delegate"]):
@@ -63,6 +64,7 @@ claimed_stake = l2SubgraphHandler.paginate_results(
     migrator_initial_acc, delegator_claim_cb, l2SubgraphHandler.get_delegator_claim, page_size)
 migrated = l2SubgraphHandler.paginate_results(
     migrator_initial_acc, migrator_acc_cb, l2SubgraphHandler.get_migrators, page_size)
+migrated_addresses = [val["address"] for val in migrated["orchestrators"]["addresses"]]
 nonmigrated = l1SubgraphHandler.paginate_results(
     nonmigrated_orch_initial_acc, nonmigrated_orch_acc_cb, l1SubgraphHandler.get_orchestrators, page_size)
 
@@ -96,3 +98,10 @@ print(
     nonMigratedCount=len(nonmigrated["addresses"])
     )
 )
+
+def sortByStake(val):
+    print(val)
+    return val["stake"]
+
+nonmigrated["addresses"].sort(key=sortByStake, reverse=True)
+print("remaining Os",nonmigrated["addresses"])
