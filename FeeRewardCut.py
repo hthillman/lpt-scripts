@@ -34,7 +34,7 @@ arbitrum_maps = []
 
 blocks_for_q = []
 for i in range(int(args["depth"])):
-    blocks_for_q.append(block_w_offset - (i*100))
+    blocks_for_q.append(block_w_offset - (i*1000))
 
 for i in blocks_for_q:
     arbitrum_maps.append(l2SubgraphHandler.paginate_results({}, orch_map_cb, l2SubgraphHandler.get_fee_reward, 100, {"block":i}))

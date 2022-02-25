@@ -47,6 +47,12 @@ class SubgraphQuery:
     def get_delegator_claim(self, offset, page_size):
         result = self.run_query( _get_delegator_claim_query(page_size, offset))
         return result["data"]["stakeClaimedEvents"]
+    def get_recent_rounds(self, offset, page_size):
+        result = self.run_query( _get_recent_round_query(page_size, offset))
+        return [int(round["id"]) for round in result["data"]["rounds"]]
+    def get_round_protocol(self, offset, page_size, params):
+        result = self.run_query( _get_round_protocol(page_size, offset, params))
+        return result["data"]["protocols"][0]
     def get_current_round(self):
         query = "{ rounds(first: 1, orderBy: startBlock, orderDirection: desc) { id } }"
         result = self.run_query( query)
@@ -64,6 +70,9 @@ def get_pending_stake(contract, delegator_address, current_round):
 
 
 # raw graphql
+def _get_recent_round_query(limit, skip):
+    return "{ rounds(orderBy:id, orderDirection: desc, first: %s, skip: %s) { id } }" % (limit, skip)
+
 def _get_delegators_query(limit, skip):
     return "{ delegators(first: %s, skip: %s) { id delegate { id } } }" % (limit, skip)
 
@@ -71,7 +80,10 @@ def _get_migrators_query(limit, skip):
     return "{ migrateDelegatorFinalizedEvents(first: %s, skip: %s) { delegate delegatedStake stake l1Addr } }" % (limit, skip)
 
 def _get_fee_reward_query(limit, skip, params):
-    return "{ transcoders(first: %s, skip: %s, block:{number: %s}) { id active feeShare rewardCut } }" % (limit, skip, params["block"])
+    return "{ transcoders(first: %s, skip: %s, block:{number: %s}) { id active totalStake feeShare rewardCut } }" % (limit, skip, params["block"])
+
+def _get_round_protocol(limit, skip, params):
+    return "{ protocols( block:{number: %s}) { id inflation totalActiveStake totalSupply } }" % (params["block"])
 
 def _get_orchestrators_query(limit, skip):
     return "{ transcoders(first: %s, skip: %s) { id active totalStake } }" % (limit, skip)
