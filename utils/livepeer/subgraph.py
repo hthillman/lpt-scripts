@@ -53,6 +53,13 @@ class SubgraphQuery:
     def get_round_protocol(self, offset, page_size, params):
         result = self.run_query( _get_round_protocol(page_size, offset, params))
         return result["data"]["protocols"][0]
+    def get_recent_rebonds(self, offset, page_size):
+        result = self.run_query( _get_recent_rebonds_query(page_size, offset))
+        return result["data"]["rebondEvents"]
+    def get_recent_rebonds_l1(self, offset, page_size):
+        result = self.run_query( _get_recent_rebonds_query_l1(page_size, offset))
+        return result["data"]["rebondEvents"]
+
     def get_current_round(self):
         query = "{ rounds(first: 1, orderBy: startBlock, orderDirection: desc) { id } }"
         result = self.run_query( query)
@@ -68,8 +75,17 @@ def get_pending_fees(contract, delegator_address, current_round):
 def get_pending_stake(contract, delegator_address, current_round):
     return contract.caller.pendingStake(Web3.toChecksumAddress(delegator_address), current_round)
 
+def get_earnings_pool(contract, delegator_address, current_round):
+    return contract.caller.getTranscoderEarningsPoolForRound(Web3.toChecksumAddress(delegator_address), current_round)
 
 # raw graphql
+def _get_recent_rebonds_query(limit, skip):
+    return "{ rebondEvents (where: {round_gt:\"2468\"}, first: %s, skip: %s){ round { id } amount } }" % (limit, skip)
+
+def _get_recent_rebonds_query_l1(limit, skip):
+    return "{ rebondEvents (where: {round_gt:\"2425\"}, first: %s, skip: %s){ round { id } amount } }" % (limit, skip)
+
+
 def _get_recent_round_query(limit, skip):
     return "{ rounds(orderBy:id, orderDirection: desc, first: %s, skip: %s) { id } }" % (limit, skip)
 
